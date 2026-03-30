@@ -168,7 +168,7 @@ aligner = Align.PairwiseAligner()
 aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
 aligner.open_gap_score = -11
 aligner.extend_gap_score = -1
-aligner.mode = "global"
+aligner.mode = "local" #changed from global to local
 
 blosum62 = substitution_matrices.load("BLOSUM62")
 msa_rows = []
