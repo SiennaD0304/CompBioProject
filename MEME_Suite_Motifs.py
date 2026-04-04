@@ -1,135 +1,61 @@
-###############################
-# Used the Module Pymemesuite which allows you to access meme suit's tool FIMO:Find Individual Motif Occurrences
-    #FIMO: scans a set of sequences for individual matches to motifs you provide 
-################################
-#LINK TO SITE WITH INSTALLION INSTRUCTIONS FOR MODULE
-#https://pypi.org/project/pymemesuite/#:~:text=%F0%9F%94%A7%20Installing,qvalue%20)
-# from command line installed the module pymemesuite with the command:
-#pip install pymemesuite 
+# Pymemesuite module to access meme suite's FIMO tool
+# FIMO scans set of sequences for matches to provided motifs
 
-import requests 
+# MODULE DOCUMENTATION
+#https://pypi.org/project/pymemesuite/#:~:text=%F0%9F%94%A7%20Installing,qvalue%20)
+
+# from virtual environment on command line installed the module pymemesuite with the command:
+# pip install pymemesuite 
+
 import Bio.SeqIO
 from Bio import SeqIO
 from Bio.Seq import Seq
-from io import StringIO
-
-####################
-# GET MUSCLE PROTEIN SEQUENCES
-#####################
-proteins = {
-    "ABLIM1": "O14639",
-    "MYBPC": "Q14896",
-    "MYL2": "P10916"
-}
-
-def fetch_fasta(uniprot_id):
-    url = f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.fasta"
-    return requests.get(url).text
-
-sequences = {}
-fasta_list = []
-
-for name, uid in proteins.items():
-    fasta = fetch_fasta(uid)
-    fasta_list.append(fasta)
-    record = SeqIO.read(StringIO(fasta), "fasta")
-    sequences[name] = str(record.seq)
-    #seq_list.append(sequences[name])
-
-fasta_files = "/n".join(fasta_list)
-fasta_input = fasta_files.replace("/n", "")
-
-with open ("muscle_seq.fna", "w") as f: 
-    f.write(fasta_input)
-
-#####################
-#GET INPUT BACKGROUND MATRIX 
-#####################
-from Bio import SeqIO
-'''from Bio.Align import substitution_matrices'''
-#import numpy as np
-
-# function format input for motifs
-# edit to include background frequency lines
-def write_motif_file(motifs, out_file):
-    alphabet = "ACDEFGHIKLMNPQRSTVWY"
-
-    with open(out_file, "w") as f:
-    # write header
-        f.write("MEME version 5\n")
-        f.write(f"ALPHABET= {alphabet}\n\n")
-
-        for i, seq in enumerate(motifs):    
-        # motif identifier and alternate name
-            f.write(f"MOTIF {seq} motif_{i+1}\n")
-
-        # letter-probability matrix header
-            f.write(f"letter-probability matrix: alength= {len(alphabet)} w= {len(seq)} nsites= 1\n")
-
-        # design probability matrix
-        # shows the probabilities of each amino acid at each position in motif
-        # how to include scoring / chemical group similarity? this would modify code to account for weak motifs
-            for i in seq:
-                row = []
-                for aa in alphabet:
-                    if i == aa:
-                        row.append("1.0000")
-                    else:   
-                        row.append("0.0000")
-                f.write(" " + " ".join(row) + "\n")
-
-motifs = ["GLALSDLIQKYFF"]
-#"LSDLIQ", "LSSLIQ" other motifs to check once known to work fully 
-write_motif_file(motifs, "motifs_input.txt")
 
 ############################
 #START OF MEME SUITE MODULE:FIMO MOTIF SEARCH 
 ############################
 
-
-#GENERATING MOTIF FREQUENCY MATRIX# 
 from pymemesuite.common import MotifFile
-with MotifFile("motifs_input.txt") as motif_file:
-    motif = motif_file.read()
-
-print(motif.name.decode())
-print(motif.consensus)
-
-for row in motif.frequencies:
-    print(" ".join(f'{freq:.2f}' for freq in row))
-
-#GENERATING MOTIF MATCHES#
 from pymemesuite.common import Sequence 
 from pymemesuite.fimo import FIMO 
 
+# biopython to extract amino acid sequences of cardiac muscle proteins
 sequences = [
     Sequence(str(record.seq), name=record.id.encode())
     for record in Bio.SeqIO.parse("muscle_seq.fna", "fasta")
 ]
 
-fimo = FIMO(both_strands=False)
-pattern = fimo.score_motif(motif,sequences, motif_file.background)
-
-for m in pattern.matched_elements: 
-    print(
-    m.source.accession.decode(),
-    m.start,
-    m.stop,
-    m.strand,
-    m.score,
-    m.pvalue,
-    m.qvalue
-    )
-
-pos_1 = m.start 
-pos_2 = m.stop 
-match_name = m.source.accession.decode()
-
+# dictionary to store ids and sequences
 seq_id_dict = {}
 for record in Bio.SeqIO.parse("muscle_seq.fna", "fasta"):
     seqs = str(record.seq)
     name = record.id
-    seq_id_dict.update({name:seqs})
+    seq_id_dict.update({name:seqs}) 
 
-match_seq = seq_id_dict[match_name]
-print(match_seq[pos_1:pos_2])
+fimo = FIMO(both_strands=False)
+
+# WRITE RESULTS
+with open("meme_suite_output.txt", "w") as out:
+
+    # open input file to iterate through all motifs
+    # MotifFile function part of pymemesuite.common
+    # this loads meme format file without manual parsing
+    with MotifFile("motifs_input.meme") as motif_file:
+
+        for motif in motif_file: # iterate through motifs
+            out.write(f"{motif.name.decode()} {motif.consensus} \n")
+            header = "Accession\tstart\tstop\tstrand\tscore\tpvalue\tmatch_seq\n"
+            out.write(header)
+
+            pattern = fimo.score_motif(motif, sequences, motif_file.background) # run FIMO
+
+            for m in pattern.matched_elements:
+                match_name = m.source.accession.decode() # prot with motif match
+                full_match_seq = seq_id_dict[match_name] # sequence with motif match
+
+                sub_seq = full_match_seq[m.start-1 : m.stop] # this is the actual motif match! need to splice full sequence
+
+                line = f"{match_name}\t{m.start}\t{m.stop}\t{m.strand}\t{m.score}\t{m.pvalue}\t{sub_seq}\n"
+                out.write(line)
+            
+            out.write("\n")
