@@ -1,44 +1,84 @@
-from Bio import SeqIO
+##### INPUT: list of motifs, sequence alignment results
+##### OUTPUT: correctly formatted file to run MEME suite
 
-# given fasta files and list of motifs
-# generate correct format for inputs
+import pandas as pd
 
-# first, need to update headers of muscle protein fasta file
-with open("MEME_proteins_input.fasta", "w") as output:
-    for record in SeqIO.parse("muscle_proteins.fasta", "fasta"):
-        record.description = ""
-        record.id = record.id.replace("old", "new")
-        SeqIO.write(record, output, "fasta")
+#### FILTER MOTIFS AND HITS
 
-# function to format input for motifs
-# edit to include background frequency lines
-def write_motif_file(motifs, out_file):
-    alphabet = "ACDEFGHIKLMNPQRSTVWY"
+def make_filtered_dict(in_file):
+
+    # make df of input file, extract info needed
+    with open(in_file, 'r') as f:
+        df = pd.read_csv(f, sep='\t')
+        motifs=set(df['Motif'].tolist()) # only want unique motifs 
+        aligned_motifs = df['Aligned_Motif'].tolist()
+        aligned_hits = df['Aligned_Hit'].tolist()
+
+        #dictionary with aligned motifs as keys and aligned hits as values
+        motif_hit_dict={}
+        for i in range(len(aligned_motifs)):
+            motif_hit_dict[aligned_motifs[i]]=aligned_hits[i]
+
+        # filtering by length
+        filtered_dict={}
+        for key, value in motif_hit_dict.items():
+            if len(key)>=4:
+                filtered_dict[key]=value
+
+    return motifs, filtered_dict
+
+#### DESIGN PROBABILITY MATRIX
+
+def make_prob_matrix(motif, filtered_dict):
+    alphabet = "ACDEFGHIKLMNPQRSTVWY" # amino acids
     
+    # initialize count matrix to zeros for specific motif length
+    count_matrix = pd.DataFrame(0, index=range(len(motif)), columns=list(alphabet))
+
+    # initialize with the motif itself
+    for i, aa in enumerate(motif):
+        if aa in count_matrix.columns: # match positions in motif to amino acids in alphabet
+            count_matrix.loc[i, aa] += 1
+
+    # update matrix based on substitutions in aligned hits
+    for fragment, hit in filtered_dict.items():
+        start = motif.find(fragment) # find where fragment is in the entire motif
+        if start != -1: # check to make sure there's a match 
+            for i, char in enumerate(hit):
+                position = start + i 
+                if position < len(motif) and char in alphabet:
+                    count_matrix.loc[position, char] += 1 # update positions with an aligned hit
+        
+    # normalize: divide each position by the row total 
+    row_sums = count_matrix.sum(axis=1)
+    prob_matrix = count_matrix.divide(row_sums, axis=0).round(3)
+        
+    return prob_matrix
+
+#### WRITE MEME INPUT FILE
+
+def write_motif_file(motifs, filtered_dict, out_file):
+    alphabet = "ACDEFGHIKLMNPQRSTVWY" # amino acids
+
     with open(out_file, "w") as f:
         # write header
         f.write("MEME version 5\n")
         f.write(f"ALPHABET= {alphabet}\n\n")
 
-        for i, residue in enumerate(motifs):
-            # motif identifier and alternate name
-            f.write(f"MOTIF {residue} motif_{i+1}\n")
-
-            # letter-probability matrix header
-            f.write(f"letter-probability matrix: alength= {len(alphabet)} w= {len(residue)} nsites= 1\n")
+        # information for each specific motif
+        for i, motif in enumerate(motifs):
+            f.write(f"MOTIF {motif} motif_{i+1}\n")
             
-            # design probability matrix
-            # shows the probabilities of each amino acid at each position in motif
-            # this is a strict matrix - edit to account for subsitutions
-            for i in residue:
-                row = []
-                for aa in alphabet:
-                    if i == aa:
-                        row.append("1.0000")
-                    else:
-                        row.append("0.0000")
-                f.write("  " + "  ".join(row) + "\n")
+            # call probability matrix function for each dataset
+            probs = make_prob_matrix(motif, filtered_dict)
+            
+            # write motif metadata and probability matrix to file
+            f.write(f"letter-probability matrix: alength= {len(alphabet)} w= {len(motif)} nsites= 1\n")
+            f.write(f"{probs.to_string(header=False, index=False)}\n\n")
 
-# test 
-motifs = ["GLALSDLIQKYFF", "LSDLIQ", "LSSLIQ"]
-write_motif_file(motifs, "motifs_input.meme")
+    return f
+
+# process input file
+motifs_set, filtered_data = make_filtered_dict("msa_results.tsv")
+# write output file
+write_motif_file(motifs_set, filtered_data, "motifs_input.meme")
