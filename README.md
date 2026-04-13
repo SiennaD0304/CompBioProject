@@ -2,7 +2,8 @@ The entire analysis pipeline for this project is written in the combined_motif_a
 
 This code requires a virtual environment. In VS Code, set up a virtual environment using command+shift+P to bring up the command palette. Then select "Python: Create Environment" and choose "Venv". VS Code will automatically create a .venv folder in your workspace and set it as the active environment.
 
-Documentation on how to set up a virtual environment in VS Code can be found here: https://code.visualstudio.com/docs/python/environments. Once the virtual environment is set up in your project folder, make sure that it is activated using the command:
+Documentation on how to set up a virtual environment in VS Code can also be found here: https://code.visualstudio.com/docs/python/environments. 
+Once the virtual environment is set up in your project folder, make sure that it is activated using the command:
 ```
 source .venv/bin/activate
 ```
