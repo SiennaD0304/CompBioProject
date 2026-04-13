@@ -7,7 +7,10 @@ Then, clone the repository into your using the following command in the terminal
 ```
 git clone https://github.com/annalundeen/CompBioProject
 ```
-
+Then navigate into the project directory: 
+```
+cd CompBioProject/
+```
 Next, drag the newly created virtual environment into the project directory. Navigate to your home directory, locate the subdirectory ".venv", and drag it into "CompBioProject".
 
 Once the virtual environment is set up in your project folder, make sure that it is activated using the command:
@@ -19,11 +22,6 @@ When the virtual environment is active, the command line should show:
 (.venv) user/path_to_file
 ```
 
-
-Then navigate into the project directory: 
-```
-cd CompBioProject/
-```
 Then, you will need to install the packages necessary to run the code within the virtual environment:
 ```
 .venv/bin/python -m pip install numpy pandas requests biopython pymemesuite
