@@ -69,7 +69,7 @@ for motif in motifs:
 
 os.system("makeblastdb -in muscle_proteins.fasta -dbtype prot -out muscle_db")
 
-os.system("blastp -query Nav1.5.fasta -db muscle_db -out nav_vs_muscle.tsv -outfmt '6 qseqid sseqid pident length qstart qend sstart send evalue bitscore")
+os.system("blastp -query Nav1.5.fasta -db muscle_db -out nav_vs_muscle.tsv -outfmt '6 qseqid sseqid pident length qstart qend sstart send evalue bitscore'")
 
 blast_df = pd.read_csv(
     "nav_vs_muscle.tsv",
