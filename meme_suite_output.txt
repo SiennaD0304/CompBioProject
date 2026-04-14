@@ -1,0 +1,55 @@
+motif_1 GLALSDLIQKYFF 
+Accession	start	stop	strand	score	pvalue	match_seq
+ABLIM1	126	138	+	-6.725663716814161	7.855639493592424e-05	KVCGCDLAQGGFF
+
+motif_2 LSDLIQ 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYBPC	822	827	+	9.059829059829063	3.23151504124183e-05	NFDLIQ
+
+motif_3 LSSLIQ 
+Accession	start	stop	strand	score	pvalue	match_seq
+
+motif_4 GTVLSDIIQKYFF 
+Accession	start	stop	strand	score	pvalue	match_seq
+
+motif_5 LSDIIQ 
+Accession	start	stop	strand	score	pvalue	match_seq
+
+motif_6 FKVGHGLAC 
+Accession	start	stop	strand	score	pvalue	match_seq
+
+motif_7 VNILAKI 
+Accession	start	stop	strand	score	pvalue	match_seq
+
+motif_8 FKVGEGLAC 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYBPC	615	623	+	15.970873786407765	5.255001733248439e-07	SFVPEGFAC
+
+motif_9 JDELIK 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYL2	66	71	+	19.38709677419355	5.579342074275481e-08	IDEMIK
+
+motif_10 VNILAEJ 
+Accession	start	stop	strand	score	pvalue	match_seq
+
+motif_11 JSELIK 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYL2	66	71	+	19.048387096774192	1.3324707039066736e-07	IDEMIK
+MYBPC	535	540	+	11.427419354838712	4.351096343296578e-05	LAELIV
+
+motif_12 GTAJAELIKKYFF 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYBPC	532	544	+	5.415929203539825	6.449651337622858e-06	GQALAELIVQEKK
+MYBPC	400	412	+	-1.858407079646021	9.707815551763284e-05	GQEIQMSGSKYIF
+
+motif_13 JSDLIQ 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYBPC	535	540	+	10.444444444444443	6.384269605468064e-05	LAELIV
+MYBPC	822	827	+	7.897435897435898	9.197453905036681e-05	NFDLIQ
+
+motif_14 GLAJAELIKEYFF 
+Accession	start	stop	strand	score	pvalue	match_seq
+MYBPC	532	544	+	8.238938053097343	2.2389055315588394e-06	GQALAELIVQEKK
+MYL2	63	75	+	0.787610619469028	4.09930384618651e-05	NEEIDEMIKEAPG
+MYBPC	400	412	+	-2.0176991150442447	7.511118420668904e-05	GQEIQMSGSKYIF
+

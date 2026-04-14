@@ -1,0 +1,34 @@
+cd project folder?
+
+1) Create environment
+python -m venv .venv
+
+2) activate on either windows or mac
+#windows
+.venv\Scripts\activate
+#mac
+source .venv/bin/activate
+
+3) install packages we want
+#windows - don't put the path to python?
+pip install numpy pandas requests biopython pymemesuite
+
+#mac
+.venv/bin/python -m pip install numpy pandas requests biopython pymemesuite
+
+4) freeze environment
+pip freeze > requirements.txt
+
+5) push to github 
+Commit the requirements.txt file and add .venv/ to your .gitignore
+
+6) others reproduce it by running (inside their own virtual environment): 
+
+#new user to install packages and everything
+pip install -r requirements.txt
+
+#make sure packages are there
+pip list
+
+#to deactivate
+deactivate 
