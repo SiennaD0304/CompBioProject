@@ -16,9 +16,9 @@ This code requires a virtual environment so that packages can be installed in th
 https://code.visualstudio.com/docs/python/environments.
 
 First, make sure that you are in your project directory. Then, simply use the following command in the terminal, where your desired environment name can take the place of .venv: 
-'''
+```
 python3 -m venv .venv
-'''
+```
 Once the virtual environment is set up in your project folder, make sure that it is activated using the command:
 ```
 source .venv/bin/activate
